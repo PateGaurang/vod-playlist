@@ -1,6 +1,6 @@
 name: Generate and Publish VOD
 
-"on":
+on:
   push:
     branches:
       - main
