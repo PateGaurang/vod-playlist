@@ -1,1 +1,57 @@
+[
+  {
+    "id": "series-001",
+    "title": "Example Series",
+    "year": 2025,
+    "genres": ["Drama", "Action"],
+    "poster": "https://example.com/series-poster.jpg",
+    "backdrop": "https://example.com/backdrop.jpg",
+    "description": "Example series description.",
+    "seasons": [
+      {
+        "number": 1,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Pilot",
+            "description": "The first episode.",
+            "sources": [
+              {
+                "url": "https://example.com/series/example/s01/e01/master.m3u8",
+                "quality": "1080p"
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "title": "Episode Two",
+            "description": "The second episode.",
+            "sources": [
+              {
+                "url": "https://example.com/series/example/s01/e02/master.m3u8",
+                "quality": "1080p"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Season 2 Premiere",
+            "description": "Season two begins.",
+            "sources": [
+              {
+                "url": "https://example.com/series/example/s02/e01/master.m3u8",
+                "quality": "1080p"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
 
