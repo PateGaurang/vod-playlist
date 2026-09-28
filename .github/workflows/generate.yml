@@ -1,10 +1,9 @@
-name: Generate VOD Playlists
+name: Generate and Publish VOD
 
 on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 permissions:
@@ -13,14 +12,14 @@ permissions:
   id-token: write
 
 jobs:
-  generate:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -28,14 +27,20 @@ jobs:
       - name: Generate playlists
         run: npm run generate
 
-      - name: Commit generated playlists
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
 
-          git add public/movies.m3u public/series.m3u
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
 
-          git diff --cached --quiet || git commit -m "Update VOD playlists"
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-          git push
-
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
