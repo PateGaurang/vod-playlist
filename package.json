@@ -1,1 +1,9 @@
+{
+  "name": "vod-playlist-generator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "generate": "node scripts/generate.js"
+  }
+}
 
