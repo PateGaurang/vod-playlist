@@ -1,8 +1,0 @@
-#EXTM3U
-
-#EXTINF:-1 tvg-id="movie-001" tvg-name="Example Movie" tvg-logo="https://example.com/poster.jpg" group-title="Action, Drama" type="movie" year="2025" quality="1080p",Example Movie
-https://example.com/movies/example/master.m3u8
-
-#EXTINF:-1 tvg-id="movie-002" tvg-name="Another Movie" tvg-logo="https://example.com/poster2.jpg" group-title="Comedy" type="movie" year="2024" quality="1080p",Another Movie
-https://example.com/movies/another/master.m3u8
-
