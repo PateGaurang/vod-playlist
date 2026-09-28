@@ -1,101 +1,106 @@
 const fs = require("fs");
 const path = require("path");
 
-const DATA_DIR = path.join(__dirname, "..", "data");
-const PUBLIC_DIR = path.join(__dirname, "..", "public");
+const root = path.join(__dirname, "..");
+const dataDir = path.join(root, "data");
+const publicDir = path.join(root, "public");
 
-if (!fs.existsSync(PUBLIC_DIR)) {
-  fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+fs.mkdirSync(publicDir, { recursive: true });
+
+function readJSON(filename) {
+  const file = path.join(dataDir, filename);
+
+  if (!fs.existsSync(file)) {
+    console.error(`Missing file: ${file}`);
+    process.exit(1);
+  }
+
+  return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
 function escape(value = "") {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;");
+  return String(value).replace(/"/g, "&quot;");
 }
 
-function readJSON(file) {
-  return JSON.parse(
-    fs.readFileSync(path.join(DATA_DIR, file), "utf8")
-  );
-}
+// -------------------------
+// MOVIES
+// -------------------------
 
-function moviePlaylist(movies) {
-  let output = "#EXTM3U\n\n";
+const movies = readJSON("movies.json");
 
-  for (const movie of movies) {
-    const genres = (movie.genres || []).join(", ");
+let moviesM3U = "#EXTM3U\n\n";
 
-    for (const source of movie.sources || []) {
-      output += `#EXTINF:-1`;
-      output += ` tvg-id="${escape(movie.id)}"`;
-      output += ` tvg-name="${escape(movie.title)}"`;
-      output += ` tvg-logo="${escape(movie.poster || "")}"`;
-      output += ` group-title="${escape(genres)}"`;
-      output += ` type="movie"`;
-      output += ` year="${escape(movie.year || "")}"`;
-      output += ` quality="${escape(source.quality || "")}"`;
-      output += `,${movie.title}`;
+for (const movie of movies) {
+  const genres = (movie.genres || []).join(", ");
 
-      output += `\n${source.url}\n\n`;
-    }
+  for (const source of movie.sources || []) {
+    moviesM3U +=
+      `#EXTINF:-1 ` +
+      `tvg-id="${escape(movie.id)}" ` +
+      `tvg-name="${escape(movie.title)}" ` +
+      `tvg-logo="${escape(movie.poster || "")}" ` +
+      `group-title="${escape(genres)}"`;
+    
+    moviesM3U += `,${movie.title}\n`;
+    moviesM3U += `${source.url}\n\n`;
   }
-
-  return output;
 }
 
-function seriesPlaylist(series) {
-  let output = "#EXTM3U\n\n";
+fs.writeFileSync(
+  path.join(publicDir, "movies.m3u"),
+  moviesM3U
+);
 
-  for (const show of series) {
-    const genres = (show.genres || []).join(", ");
+// -------------------------
+// SERIES
+// -------------------------
 
-    for (const season of show.seasons || []) {
-      for (const episode of season.episodes || []) {
-        for (const source of episode.sources || []) {
-          const episodeId =
-            `${show.id}-s${String(season.number).padStart(2, "0")}` +
-            `e${String(episode.number).padStart(2, "0")}`;
+const series = readJSON("series.json");
 
-          const episodeName =
-            `${show.title} S${String(season.number).padStart(2, "0")}` +
-            `E${String(episode.number).padStart(2, "0")} - ${episode.title}`;
+let seriesM3U = "#EXTM3U\n\n";
 
-          output += `#EXTINF:-1`;
-          output += ` tvg-id="${escape(episodeId)}"`;
-          output += ` tvg-name="${escape(episodeName)}"`;
-          output += ` tvg-logo="${escape(show.poster || "")}"`;
-          output += ` group-title="${escape(show.title)} | Season ${season.number}"`;
-          output += ` type="series"`;
-          output += ` series-id="${escape(show.id)}"`;
-          output += ` season="${season.number}"`;
-          output += ` episode="${episode.number}"`;
-          output += ` quality="${escape(source.quality || "")}"`;
-          output += `,${episodeName}`;
+for (const show of series) {
+  for (const season of show.seasons || []) {
+    for (const episode of season.episodes || []) {
+      for (const source of episode.sources || []) {
 
-          output += `\n${source.url}\n\n`;
-        }
+        const seasonNumber = String(season.number).padStart(2, "0");
+        const episodeNumber = String(episode.number).padStart(2, "0");
+
+        const id =
+          `${show.id}-s${seasonNumber}e${episodeNumber}`;
+
+        const name =
+          `${show.title} S${seasonNumber}E${episodeNumber} - ${episode.title}`;
+
+        seriesM3U +=
+          `#EXTINF:-1 ` +
+          `tvg-id="${escape(id)}" ` +
+          `tvg-name="${escape(name)}" ` +
+          `tvg-logo="${escape(show.poster || "")}" ` +
+          `group-title="${escape(show.title)} | Season ${season.number}"`;
+
+        seriesM3U += `,${name}\n`;
+        seriesM3U += `${source.url}\n\n`;
       }
     }
   }
-
-  return output;
 }
 
-const movies = readJSON("movies.json");
-const series = readJSON("series.json");
-
 fs.writeFileSync(
-  path.join(PUBLIC_DIR, "movies.m3u"),
-  moviePlaylist(movies)
+  path.join(publicDir, "series.m3u"),
+  seriesM3U
 );
 
-fs.writeFileSync(
-  path.join(PUBLIC_DIR, "series.m3u"),
-  seriesPlaylist(series)
-);
-
+console.log("");
+console.log("================================");
+console.log("VOD PLAYLIST GENERATION COMPLETE");
+console.log("================================");
+console.log("");
 console.log("Generated:");
 console.log("  public/movies.m3u");
 console.log("  public/series.m3u");
-
+console.log("");
+console.log(`Movies: ${movies.length}`);
+console.log(`Series: ${series.length}`);
+console.log("");
