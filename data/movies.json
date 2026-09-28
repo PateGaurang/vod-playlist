@@ -1,1 +1,31 @@
+[
+  {
+    "id": "movie-001",
+    "title": "Example Movie",
+    "year": 2025,
+    "genres": ["Action", "Drama"],
+    "poster": "https://example.com/poster.jpg",
+    "description": "Example movie description.",
+    "sources": [
+      {
+        "url": "https://example.com/movies/example/master.m3u8",
+        "quality": "1080p"
+      }
+    ]
+  },
+  {
+    "id": "movie-002",
+    "title": "Another Movie",
+    "year": 2024,
+    "genres": ["Comedy"],
+    "poster": "https://example.com/poster2.jpg",
+    "description": "Another movie.",
+    "sources": [
+      {
+        "url": "https://example.com/movies/another/master.m3u8",
+        "quality": "1080p"
+      }
+    ]
+  }
+]
 
