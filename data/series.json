@@ -3,7 +3,7 @@
     "id": "series-001",
     "title": "Example Series",
     "year": 2025,
-    "genres": ["Drama", "Action"],
+    "genres": ["Drama", "Action", "Thriller"],
     "poster": "https://example.com/series-poster.jpg",
     "backdrop": "https://example.com/backdrop.jpg",
     "description": "Example series description.",
