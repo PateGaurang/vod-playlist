@@ -49,18 +49,46 @@ function generateMovies() {
 
     let output = "#EXTM3U\n\n";
 
+    let generated = 0;
+
     for (const movie of movies) {
-        if (!movie.url) {
+        if (!movie.sources || !Array.isArray(movie.sources)) {
             continue;
         }
 
-        output += createExtInf(
-            movie.name || "Unknown Movie",
-            movie.group || "Movies",
-            movie.logo || ""
-        );
+        for (const source of movie.sources) {
+            if (!source.url) {
+                continue;
+            }
 
-        output += `\n${movie.url.trim()}\n\n`;
+            const title = movie.title || "Unknown Movie";
+
+            const group = movie.genres && movie.genres.length
+                ? movie.genres.join(", ")
+                : "Movies";
+
+            const logo = movie.poster || "";
+
+            let displayName = title;
+
+            if (movie.year) {
+                displayName += ` (${movie.year})`;
+            }
+
+            if (source.quality) {
+                displayName += ` [${source.quality}]`;
+            }
+
+            output += createExtInf(
+                displayName,
+                group,
+                logo
+            );
+
+            output += `${source.url.trim()}\n\n`;
+
+            generated++;
+        }
     }
 
     fs.writeFileSync(
@@ -69,7 +97,7 @@ function generateMovies() {
         "utf8"
     );
 
-    console.log(`Generated movies.m3u: ${movies.length} entries`);
+    console.log(`Generated movies.m3u: ${generated} sources from ${movies.length} movies`);
 }
 
 function generateSeries() {
