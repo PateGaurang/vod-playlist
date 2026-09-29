@@ -8,7 +8,7 @@
     "description": "Example movie description.",
     "sources": [
       {
-        "url": "https://nc-cf.tubi.video/d54e89a1-9934-4ca6-bfcf-cdd82ed91144/cbqn6kms.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjZG5fcHJlZml4IjoiaHR0cHM6Ly9uYy1jZi50dWJpLnZpZGVvIiwiZXhwIjoxNzkxMjc3MjAwLCJtZWRpYV9zaWciOjY4NTI4MTQxfQ.QqHaZ7sHQSxXaKVttAyioucX28m8brZib3n_Sxtu_LQ",
+        "url": "https://nc-cf.tubi.video/549ad314-afe9-46d8-9d76-f49024e64475/2pzzhbm4.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjZG5fcHJlZml4IjoiaHR0cHM6Ly9uYy1jZi50dWJpLnZpZGVvIiwiZXhwIjoxNzkxMjc3MjAwLCJtZWRpYV9zaWciOjc1NTk4NDI1fQ.7yqUaGHdt4gM3Cei39AebVJNlRXO488-U3hy96u1ls8",
         "quality": "1080p"
       }
     ]
