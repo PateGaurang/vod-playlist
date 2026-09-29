@@ -3,7 +3,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const DATA = path.join(ROOT, "data");
-const PUBLIC = path.join(ROOT, "public");
+const PUBLIC = path.join(ROOT, "docs");
 
 if (!fs.existsSync(PUBLIC)) {
     fs.mkdirSync(PUBLIC, { recursive: true });
