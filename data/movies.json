@@ -8,7 +8,7 @@
     "description": "Example movie description.",
     "sources": [
       {
-        "url": "https://nc-cf.tubi.video/549ad314-afe9-46d8-9d76-f49024e64475/2pzzhbm4.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjZG5fcHJlZml4IjoiaHR0cHM6Ly9uYy1jZi50dWJpLnZpZGVvIiwiZXhwIjoxNzkxMjc3MjAwLCJtZWRpYV9zaWciOjc1NTk4NDI1fQ.7yqUaGHdt4gM3Cei39AebVJNlRXO488-U3hy96u1ls8",
+        "url": "https://dr1.multidownload.rest/d/0aff4406?eid=vwfMUZOQ1g3RHhUSC1LMDZkell5NmEzOVhSWndSSnpHRG4tNVJ&token=9b55c1d68ccb0ab1fab79c87&exp=1790696100&action=watch",
         "quality": "1080p"
       }
     ]
