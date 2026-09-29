@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,12 +28,12 @@ jobs:
       - name: Generate playlists
         run: node scripts/generate.js
 
-      - name: Show generated files
+      - name: Check generated files
         run: |
-          echo "=== movies.m3u ==="
+          echo "===== movies.m3u ====="
           cat docs/movies.m3u
-          echo ""
-          echo "=== series.m3u ==="
+
+          echo "===== series.m3u ====="
           cat docs/series.m3u
 
       - name: Commit generated playlists
@@ -42,8 +44,8 @@ jobs:
           git add docs/movies.m3u docs/series.m3u
 
           if git diff --cached --quiet; then
-            echo "No changes detected"
+            echo "No playlist changes detected."
           else
-            git commit -m "Auto-generate M3U playlists"
+            git commit -m "Update generated playlists"
             git push
           fi
