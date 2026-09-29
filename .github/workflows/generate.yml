@@ -1,18 +1,21 @@
-name: Generate and Publish VOD
+name: Generate M3U Playlists
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "data/**"
+      - "scripts/**"
+      - ".github/workflows/generate.yml"
+
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,23 +30,16 @@ jobs:
       - name: Generate playlists
         run: node scripts/generate.js
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
+      - name: Commit generated playlists
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Upload website
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./public
+          git add public/movies.m3u public/series.m3u
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-generate M3U playlists"
+            git push
+          fi
