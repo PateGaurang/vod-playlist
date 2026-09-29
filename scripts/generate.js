@@ -22,8 +22,7 @@ function clean(value) {
 
 function escapeAttribute(value) {
     return clean(value)
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;");
+        .replace(/"/g, '\\"');
 }
 
 function createExtInf(name, group, logo) {
