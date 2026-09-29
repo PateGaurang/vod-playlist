@@ -1,6 +1,6 @@
 #EXTM3U
 
-#EXTINF:-1 group-title="Action, Drama" tvg-logo="https://example.com/poster.jpg",Example Movie (2025) [1080p]https://nc-cf.tubi.video/d54e89a1-9934-4ca6-bfcf-cdd82ed91144/cbqn6kms.m3u8
+#EXTINF:-1 group-title="Action, Drama" tvg-logo="https://example.com/poster.jpg",Example Movie (2025) [1080p]https://nc-cf.tubi.video/d54e89a1-9934-4ca6-bfcf-cdd82ed91144/cbqn6kms.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjZG5fcHJlZml4IjoiaHR0cHM6Ly9uYy1jZi50dWJpLnZpZGVvIiwiZXhwIjoxNzkxMjc3MjAwLCJtZWRpYV9zaWciOjY4NTI4MTQxfQ.QqHaZ7sHQSxXaKVttAyioucX28m8brZib3n_Sxtu_LQ
 
 #EXTINF:-1 group-title="Comedy" tvg-logo="https://example.com/poster2.jpg",Another Movie (2024) [1080p]https://example.com/movies/another/master.m3u8
 
