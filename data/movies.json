@@ -8,7 +8,7 @@
     "description": "Example movie description.",
     "sources": [
       {
-        "url": "https://tidownload.rest/d/0aff4406?eid=vwfMUZOQ1g3RHhUSC1LMDZkell5NmEzOVhSWndSSnpHRG4tNVJ&token=9b55c1d68ccb0ab1fab79c87&exp=1790696100&action=watch",
+        "url": "https://dr1.multidownload.rest/d/0aff4406?eid=vwfMUZOQ1g3RHhUSC1LMDZkell5NmEzOVhSWndSSnpHRG4tNVJ&token=9b55c1d68ccb0ab1fab79c87&exp=1790696100&action=watch",
         "quality": "1080p"
       }
     ]
