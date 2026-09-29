@@ -105,26 +105,59 @@ function generateSeries() {
 
     let output = "#EXTM3U\n\n";
 
-    for (const item of series) {
-        if (!item.url) {
+    let generated = 0;
+
+    for (const seriesItem of series) {
+        const name = seriesItem.title || "Unknown Series";
+        const logo = seriesItem.poster || "";
+
+        if (!Array.isArray(seriesItem.seasons)) {
             continue;
         }
 
-        const season = Number(item.season || 1);
-        const episode = Number(item.episode || 1);
+        for (const season of seriesItem.seasons) {
+            const seasonNumber = Number(season.number || 1);
 
-        const name = item.name || "Unknown Series";
+            if (!Array.isArray(season.episodes)) {
+                continue;
+            }
 
-        const displayName =
-            `${name} S${String(season).padStart(2, "0")}E${String(episode).padStart(2, "0")}`;
+            for (const episode of season.episodes) {
+                const episodeNumber = Number(episode.number || 1);
+                const episodeTitle = episode.title || "";
 
-        output += createExtInf(
-            displayName,
-            name,
-            item.logo || ""
-        );
+                if (!Array.isArray(episode.sources)) {
+                    continue;
+                }
 
-        output += `\n${item.url.trim()}\n\n`;
+                for (const source of episode.sources) {
+                    if (!source.url) {
+                        continue;
+                    }
+
+                    let displayName =
+                        `${name} S${String(seasonNumber).padStart(2, "0")}E${String(episodeNumber).padStart(2, "0")}`;
+
+                    if (episodeTitle) {
+                        displayName += ` - ${episodeTitle}`;
+                    }
+
+                    if (source.quality) {
+                        displayName += ` [${source.quality}]`;
+                    }
+
+                    output += createExtInf(
+                        displayName,
+                        name,
+                        logo
+                    );
+
+                    output += `${source.url.trim()}\n\n`;
+
+                    generated++;
+                }
+            }
+        }
     }
 
     fs.writeFileSync(
@@ -133,7 +166,7 @@ function generateSeries() {
         "utf8"
     );
 
-    console.log(`Generated series.m3u: ${series.length} entries`);
+    console.log(`Generated series.m3u: ${generated} sources from ${series.length} series`);
 }
 
 generateMovies();
