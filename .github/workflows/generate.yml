@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "data/**"
-      - "scripts/**"
-      - ".github/workflows/generate.yml"
 
   workflow_dispatch:
 
@@ -30,6 +26,14 @@ jobs:
       - name: Generate playlists
         run: node scripts/generate.js
 
+      - name: Show generated files
+        run: |
+          echo "=== movies.m3u ==="
+          cat docs/movies.m3u
+          echo ""
+          echo "=== series.m3u ==="
+          cat docs/series.m3u
+
       - name: Commit generated playlists
         run: |
           git config user.name "github-actions[bot]"
@@ -38,7 +42,7 @@ jobs:
           git add docs/movies.m3u docs/series.m3u
 
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "No changes detected"
           else
             git commit -m "Auto-generate M3U playlists"
             git push
