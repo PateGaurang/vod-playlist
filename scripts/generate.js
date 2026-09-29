@@ -5,35 +5,64 @@ const ROOT = path.join(__dirname, "..");
 const DATA = path.join(ROOT, "data");
 const PUBLIC = path.join(ROOT, "docs");
 
-if (!fs.existsSync(PUBLIC)) {
-    fs.mkdirSync(PUBLIC, { recursive: true });
-}
+// Create docs directory if it doesn't exist
+fs.mkdirSync(PUBLIC, { recursive: true });
 
+/**
+ * Load JSON file
+ */
 function loadJSON(filename) {
     const file = path.join(DATA, filename);
-    return JSON.parse(fs.readFileSync(file, "utf8"));
+
+    if (!fs.existsSync(file)) {
+        throw new Error(`File not found: ${file}`);
+    }
+
+    const content = fs.readFileSync(file, "utf8");
+
+    try {
+        return JSON.parse(content);
+    } catch (error) {
+        throw new Error(`Invalid JSON in ${filename}: ${error.message}`);
+    }
 }
 
+/**
+ * Clean text without changing URLs unnecessarily
+ */
 function clean(value) {
     return String(value ?? "")
-        .replace(/[\r\n]/g, " ")
+        .replace(/[\r\n]+/g, " ")
         .trim();
 }
 
+/**
+ * Escape values used inside M3U attributes.
+ *
+ * IMPORTANT:
+ * Do NOT replace & with &amp;.
+ * M3U URLs need the original & characters.
+ */
 function escapeAttribute(value) {
-    return clean(value)
-        .replace(/"/g, '\\"');
+    return clean(value).replace(/"/g, '\\"');
 }
 
+/**
+ * Create the #EXTINF line
+ */
 function createExtInf(name, group, logo) {
-    let attributes = [];
+    const attributes = [];
 
     if (group) {
-        attributes.push(`group-title="${escapeAttribute(group)}"`);
+        attributes.push(
+            `group-title="${escapeAttribute(group)}"`
+        );
     }
 
     if (logo) {
-        attributes.push(`tvg-logo="${escapeAttribute(logo)}"`);
+        attributes.push(
+            `tvg-logo="${escapeAttribute(logo)}"`
+        );
     }
 
     if (attributes.length > 0) {
@@ -43,94 +72,176 @@ function createExtInf(name, group, logo) {
     return `#EXTINF:-1,${clean(name)}`;
 }
 
+/**
+ * Add one M3U item.
+ *
+ * IMPORTANT:
+ * EXTINF and URL are deliberately separate array elements,
+ * guaranteeing a newline between them.
+ */
+function addEntry(lines, name, group, logo, url) {
+    const cleanUrl = String(url ?? "").trim();
+
+    if (!cleanUrl) {
+        return false;
+    }
+
+    lines.push(
+        createExtInf(name, group, logo)
+    );
+
+    // URL is ALWAYS on its own line
+    lines.push(cleanUrl);
+
+    // Blank line between entries
+    lines.push("");
+
+    return true;
+}
+
+/**
+ * Generate movies.m3u
+ */
 function generateMovies() {
     const movies = loadJSON("movies.json");
 
-    let output = "#EXTM3U\n\n";
+    if (!Array.isArray(movies)) {
+        throw new Error("movies.json must contain an array");
+    }
+
+    const lines = [
+        "#EXTM3U",
+        ""
+    ];
 
     let generated = 0;
 
     for (const movie of movies) {
-        if (!movie.sources || !Array.isArray(movie.sources)) {
+        if (!movie || !Array.isArray(movie.sources)) {
             continue;
         }
 
+        const title =
+            clean(movie.title) || "Unknown Movie";
+
+        const group =
+            Array.isArray(movie.genres) && movie.genres.length > 0
+                ? movie.genres
+                    .map(clean)
+                    .filter(Boolean)
+                    .join(", ")
+                : "Movies";
+
+        const logo = clean(movie.poster);
+
+        let baseName = title;
+
+        if (movie.year) {
+            baseName += ` (${clean(movie.year)})`;
+        }
+
         for (const source of movie.sources) {
-            if (!source.url) {
+            if (!source || !source.url) {
                 continue;
             }
 
-            const title = movie.title || "Unknown Movie";
-
-            const group = movie.genres && movie.genres.length
-                ? movie.genres.join(", ")
-                : "Movies";
-
-            const logo = movie.poster || "";
-
-            let displayName = title;
-
-            if (movie.year) {
-                displayName += ` (${movie.year})`;
-            }
+            let displayName = baseName;
 
             if (source.quality) {
-                displayName += ` [${source.quality}]`;
+                displayName += ` [${clean(source.quality)}]`;
             }
 
-            output += createExtInf(
+            const added = addEntry(
+                lines,
                 displayName,
                 group,
-                logo
+                logo,
+                source.url
             );
 
-            output += `${source.url.trim()}\n\n`;
-
-            generated++;
+            if (added) {
+                generated++;
+            }
         }
     }
 
+    const output = lines.join("\n");
+
+    const file = path.join(
+        PUBLIC,
+        "movies.m3u"
+    );
+
     fs.writeFileSync(
-        path.join(PUBLIC, "movies.m3u"),
+        file,
         output,
         "utf8"
     );
 
-    console.log(`Generated movies.m3u: ${generated} sources from ${movies.length} movies`);
+    console.log("");
+    console.log("Movies playlist generated");
+    console.log("-------------------------");
+    console.log(`Movies:  ${movies.length}`);
+    console.log(`Sources: ${generated}`);
+    console.log(`File:    ${file}`);
 }
 
+/**
+ * Generate series.m3u
+ */
 function generateSeries() {
     const series = loadJSON("series.json");
 
-    let output = "#EXTM3U\n\n";
+    if (!Array.isArray(series)) {
+        throw new Error("series.json must contain an array");
+    }
+
+    const lines = [
+        "#EXTM3U",
+        ""
+    ];
 
     let generated = 0;
 
     for (const seriesItem of series) {
-        const name = seriesItem.title || "Unknown Series";
-        const logo = seriesItem.poster || "";
+        if (!seriesItem) {
+            continue;
+        }
+
+        const name =
+            clean(seriesItem.title) || "Unknown Series";
+
+        const logo =
+            clean(seriesItem.poster);
 
         if (!Array.isArray(seriesItem.seasons)) {
             continue;
         }
 
         for (const season of seriesItem.seasons) {
-            const seasonNumber = Number(season.number || 1);
-
-            if (!Array.isArray(season.episodes)) {
+            if (!season || !Array.isArray(season.episodes)) {
                 continue;
             }
 
-            for (const episode of season.episodes) {
-                const episodeNumber = Number(episode.number || 1);
-                const episodeTitle = episode.title || "";
+            const seasonNumber =
+                Number(season.number) || 1;
 
-                if (!Array.isArray(episode.sources)) {
+            for (const episode of season.episodes) {
+                if (
+                    !episode ||
+                    !Array.isArray(episode.sources)
+                ) {
                     continue;
                 }
 
+                const episodeNumber =
+                    Number(episode.number) || 1;
+
+                const episodeTitle =
+                    clean(episode.title);
+
                 for (const source of episode.sources) {
-                    if (!source.url) {
+                    if (!source || !source.url) {
                         continue;
                     }
 
@@ -142,33 +253,59 @@ function generateSeries() {
                     }
 
                     if (source.quality) {
-                        displayName += ` [${source.quality}]`;
+                        displayName += ` [${clean(source.quality)}]`;
                     }
 
-                    output += createExtInf(
+                    const added = addEntry(
+                        lines,
                         displayName,
                         name,
-                        logo
+                        logo,
+                        source.url
                     );
 
-                    output += `${source.url.trim()}\n\n`;
-
-                    generated++;
+                    if (added) {
+                        generated++;
+                    }
                 }
             }
         }
     }
 
+    const output = lines.join("\n");
+
+    const file = path.join(
+        PUBLIC,
+        "series.m3u"
+    );
+
     fs.writeFileSync(
-        path.join(PUBLIC, "series.m3u"),
+        file,
         output,
         "utf8"
     );
 
-    console.log(`Generated series.m3u: ${generated} sources from ${series.length} series`);
+    console.log("");
+    console.log("Series playlist generated");
+    console.log("-------------------------");
+    console.log(`Series:  ${series.length}`);
+    console.log(`Sources: ${generated}`);
+    console.log(`File:    ${file}`);
 }
 
-generateMovies();
-generateSeries();
+/**
+ * Main
+ */
+try {
+    generateMovies();
+    generateSeries();
 
-console.log("All playlists generated successfully.");
+    console.log("");
+    console.log("All playlists generated successfully.");
+} catch (error) {
+    console.error("");
+    console.error("Playlist generation failed:");
+    console.error(error.message);
+
+    process.exit(1);
+}
